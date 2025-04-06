@@ -1,0 +1,143 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                String            @id @default(cuid())
+  name              String?
+  email             String?           @unique
+  emailVerified     DateTime?
+  password          String?
+  image             String?
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+  documents         Document[]
+  accounts          Account[]
+  sessions          Session[]
+  resetToken        String?
+  resetTokenExpiry  DateTime?
+  collaborations    Collaboration[]
+  documentEvents    DocumentEvent[]
+}
+
+model Document {
+  id              String          @id @default(cuid())
+  title           String          @default("Untitled Document")
+  content         String          @default("[]")
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+  published       Boolean         @default(false)
+  userId          String
+  user            User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  collaborators   Collaboration[]
+  tags            TagsOnDocuments[]
+  documentEvents  DocumentEvent[]
+  categoryId      String?
+  category        Category?       @relation(fields: [categoryId], references: [id])
+
+  @@index([userId])
+  @@index([categoryId])
+}
+
+model Collaboration {
+  id          String   @id @default(cuid())
+  documentId  String
+  userId      String
+  permission  String   @default("view") // "view", "edit", or "admin"
+  createdAt   DateTime @default(now())
+  document    Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([documentId, userId])
+  @@index([documentId])
+  @@index([userId])
+}
+
+model Tag {
+  id        String            @id @default(cuid())
+  name      String            @unique
+  color     String            @default("#3b82f6") // Default color (blue)
+  documents TagsOnDocuments[]
+}
+
+model TagsOnDocuments {
+  documentId  String
+  tagId       String
+  createdAt   DateTime @default(now())
+  document    Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  tag         Tag      @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@id([documentId, tagId])
+  @@index([documentId])
+  @@index([tagId])
+}
+
+model Category {
+  id          String     @id @default(cuid())
+  name        String     @unique
+  description String?
+  createdAt   DateTime   @default(now())
+  documents   Document[]
+}
+
+model DocumentEvent {
+  id          String   @id @default(cuid())
+  event       String   // "view", "edit", "export", "share", etc.
+  documentId  String
+  userId      String?
+  createdAt   DateTime @default(now())
+  metadata    String?  // JSON string with extra data
+  document    Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  user        User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([documentId])
+  @@index([userId])
+  @@index([event])
+  @@index([createdAt])
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@index([userId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
