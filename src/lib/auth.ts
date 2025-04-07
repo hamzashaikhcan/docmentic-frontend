@@ -1,10 +1,11 @@
 import axios from "axios";
 import { v4 as uuidv4 } from "uuid";
 import { randomBytes } from "crypto";
+import axiosClient from './axiosClient';
 
 // Ensure these are defined or imported correctly
 const BASE_URL =
-  process.env.NEXT_PUBLIC_BASE_API_URL || "http://localhost:3000";
+  process.env.NEXT_PUBLIC_BASE_API_URL || 'http://localhost:3000';
 const SALT_ROUNDS = 10;
 
 // Types
@@ -45,7 +46,7 @@ export function generateToken(length = 32): string {
   try {
     const array = new Uint8Array(length);
 
-    if (typeof window !== "undefined" && window.crypto) {
+    if (typeof window !== 'undefined' && window.crypto) {
       // Browser environment
       window.crypto.getRandomValues(array);
     } else {
@@ -55,32 +56,32 @@ export function generateToken(length = 32): string {
       }
     }
 
-    return Array.from(array, (byte) => byte.toString(16).padStart(2, "0")).join(
-      "",
+    return Array.from(array, (byte) => byte.toString(16).padStart(2, '0')).join(
+      '',
     );
   } catch (error) {
-    console.error("Token generation failed", error);
+    console.error('Token generation failed', error);
     return uuidv4(); // Fallback to UUID if all else fails
   }
 }
 
 // Simplified session management
-const SESSION_KEY = "app_session";
+const SESSION_KEY = 'app_session';
 
 export function getStoredSession(): Session | null {
-  if (typeof window === "undefined") return null;
+  if (typeof window === 'undefined') return null;
 
   try {
     const sessionStr = localStorage.getItem(SESSION_KEY);
     return sessionStr ? JSON.parse(sessionStr) : null;
   } catch (error) {
-    console.error("Failed to retrieve session", error);
+    console.error('Failed to retrieve session', error);
     return null;
   }
 }
 
 export function setStoredSession(session: Session | null): void {
-  if (typeof window === "undefined") return;
+  if (typeof window === 'undefined') return;
 
   try {
     if (session) {
@@ -89,7 +90,7 @@ export function setStoredSession(session: Session | null): void {
       localStorage.removeItem(SESSION_KEY);
     }
   } catch (error) {
-    console.error("Failed to set session", error);
+    console.error('Failed to set session', error);
   }
 }
 
@@ -121,7 +122,7 @@ export async function signIn(
 
     return null;
   } catch (error) {
-    console.error("Sign in failed", error);
+    console.error('Sign in failed', error);
     return null;
   }
 }
@@ -130,7 +131,7 @@ export async function signOut(): Promise<void> {
   try {
     await axios.post(`${BASE_URL}/api/auth/logout`);
   } catch (error) {
-    console.error("Logout failed", error);
+    console.error('Logout failed', error);
   } finally {
     setStoredSession(null);
   }
@@ -154,18 +155,18 @@ export async function register(
   payload: RegisterPayload,
 ): Promise<AuthResponse> {
   try {
-    const response = await axios.post(`${BASE_URL}/api/auth/register`, payload);
+    const response = await axiosClient.post(`/api/auth/register`, payload);
 
     return {
       success: true,
-      message: response.data?.message || "Registration successful",
+      message: response.data?.message || 'Registration successful',
     };
   } catch (error: any) {
-    console.error("Registration error", error);
+    console.error('Registration error', error);
 
     return {
       success: false,
-      message: error.response?.data?.message || "Registration failed",
+      message: error.response?.data?.message || 'Registration failed',
     };
   }
 }
