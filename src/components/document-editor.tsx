@@ -1,16 +1,15 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-"use client";
+'use client';
 
-import { useCallback, useState, useTransition, useEffect, useRef } from "react";
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { Save, CheckCircle, Clock, History, Share } from "lucide-react";
-import { toast } from "sonner";
-import { useRouter } from "next/navigation";
-import { SimpleEditor } from "@/components/simple-editor";
-import { ShareDialog } from "@/components/share-dialog";
-import { VersionHistory } from "@/components/version-history";
-import { getDocumentVersions, restoreDocumentVersion } from "@/lib/dummy-data";
+import { useCallback, useState, useTransition, useEffect, useRef } from 'react';
+import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
+import { Save, CheckCircle, Clock, History, Share } from 'lucide-react';
+import { toast } from 'sonner';
+import { useRouter } from 'next/navigation';
+import { SimpleEditor } from '@/components/simple-editor';
+import { ShareDialog } from '@/components/share-dialog';
+import { VersionHistory } from '@/components/version-history';
+import { getDocumentVersions, restoreDocumentVersion } from '@/lib/dummy-data';
 
 interface DocumentEditorProps {
   documentId?: string;
@@ -29,11 +28,11 @@ interface DocumentEditorProps {
 
 export function DocumentEditor({
   documentId,
-  initialTitle = "Untitled Document",
-  initialContent = "",
+  initialTitle = 'Untitled Document',
+  initialContent = '',
   onSave,
   onUpdate,
-  className = "",
+  className = '',
   categoryId = null,
 }: DocumentEditorProps) {
   const [title, setTitle] = useState(initialTitle);
@@ -41,14 +40,14 @@ export function DocumentEditor({
   const [isPending, startTransition] = useTransition();
   const router = useRouter();
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
-  const [saveStatus, setSaveStatus] = useState<"saved" | "saving" | "unsaved">(
-    "saved",
+  const [saveStatus, setSaveStatus] = useState<'saved' | 'saving' | 'unsaved'>(
+    'saved',
   );
   const [autoSaveEnabled, setAutoSaveEnabled] = useState(true);
   const contentRef = useRef(initialContent);
   const titleRef = useRef(initialTitle);
   const autoSaveTimerRef = useRef<NodeJS.Timeout | null>(null);
-  const [versionDescription, setVersionDescription] = useState<string>("");
+  const [versionDescription, setVersionDescription] = useState<string>('');
   const [documentVersions, setDocumentVersions] = useState<any[]>([]);
 
   // Update title when initialTitle changes
@@ -80,7 +79,7 @@ export function DocumentEditor({
         if (
           (contentRef.current !== initialContent ||
             titleRef.current !== initialTitle) &&
-          saveStatus !== "saving"
+          saveStatus !== 'saving'
         ) {
           handleSave();
         }
@@ -98,7 +97,7 @@ export function DocumentEditor({
     (newContent: string) => {
       setContent(newContent);
       contentRef.current = newContent;
-      setSaveStatus("unsaved");
+      setSaveStatus('unsaved');
 
       if (onUpdate) {
         onUpdate(newContent);
@@ -111,15 +110,15 @@ export function DocumentEditor({
     (e: React.ChangeEvent<HTMLInputElement>) => {
       setTitle(e.target.value);
       titleRef.current = e.target.value;
-      setSaveStatus("unsaved");
+      setSaveStatus('unsaved');
     },
     [],
   );
 
   const handleSave = async (description?: string) => {
-    if (saveStatus === "saving") return;
+    if (saveStatus === 'saving') return;
 
-    setSaveStatus("saving");
+    setSaveStatus('saving');
 
     const saveDescription =
       description ||
@@ -137,8 +136,8 @@ export function DocumentEditor({
 
         if (result) {
           setLastSaved(new Date());
-          setSaveStatus("saved");
-          setVersionDescription("");
+          setSaveStatus('saved');
+          setVersionDescription('');
 
           // Refresh versions after save
           if (documentId) {
@@ -154,9 +153,9 @@ export function DocumentEditor({
           }
         }
       } catch (error) {
-        console.error("Error saving document:", error);
-        toast.error("Failed to save document");
-        setSaveStatus("unsaved");
+        console.error('Error saving document:', error);
+        toast.error('Failed to save document');
+        setSaveStatus('unsaved');
       }
     });
   };
@@ -174,7 +173,7 @@ export function DocumentEditor({
           setContent(restoredDoc.content);
           contentRef.current = restoredDoc.content;
           setLastSaved(new Date());
-          setSaveStatus("saved");
+          setSaveStatus('saved');
 
           // Refresh versions
           const versions = getDocumentVersions(documentId);
@@ -182,20 +181,20 @@ export function DocumentEditor({
             setDocumentVersions(versions);
           }
 
-          toast.success("Version restored successfully");
+          toast.success('Version restored successfully');
         } else {
-          toast.error("Failed to restore version");
+          toast.error('Failed to restore version');
         }
       } catch (error) {
-        console.error("Error restoring version:", error);
-        toast.error("Failed to restore version");
+        console.error('Error restoring version:', error);
+        toast.error('Failed to restore version');
       }
     });
   };
 
   const getSaveStatusIndicator = () => {
     switch (saveStatus) {
-      case "saved":
+      case 'saved':
         return (
           <div className="flex items-center text-xs text-muted-foreground">
             <CheckCircle className="h-3 w-3 mr-1 text-green-500" />
@@ -206,14 +205,14 @@ export function DocumentEditor({
             )}
           </div>
         );
-      case "saving":
+      case 'saving':
         return (
           <div className="flex items-center text-xs text-muted-foreground">
             <Clock className="h-3 w-3 mr-1 animate-pulse" />
             <span>Saving...</span>
           </div>
         );
-      case "unsaved":
+      case 'unsaved':
         return (
           <div className="flex items-center text-xs text-amber-500">
             <span>Unsaved changes</span>
@@ -230,30 +229,30 @@ export function DocumentEditor({
     if (diffSec < 60) return `${diffSec} seconds ago`;
 
     const diffMin = Math.floor(diffSec / 60);
-    if (diffMin < 60) return `${diffMin} minute${diffMin === 1 ? "" : "s"} ago`;
+    if (diffMin < 60) return `${diffMin} minute${diffMin === 1 ? '' : 's'} ago`;
 
     const diffHour = Math.floor(diffMin / 60);
     if (diffHour < 24)
-      return `${diffHour} hour${diffHour === 1 ? "" : "s"} ago`;
+      return `${diffHour} hour${diffHour === 1 ? '' : 's'} ago`;
 
     const diffDay = Math.floor(diffHour / 24);
-    return `${diffDay} day${diffDay === 1 ? "" : "s"} ago`;
+    return `${diffDay} day${diffDay === 1 ? '' : 's'} ago`;
   };
 
   // Add beforeunload event listener to warn when closing with unsaved changes
   useEffect(() => {
     const handleBeforeUnload = (e: BeforeUnloadEvent) => {
-      if (saveStatus === "unsaved") {
+      if (saveStatus === 'unsaved') {
         const message =
-          "You have unsaved changes. Are you sure you want to leave?";
+          'You have unsaved changes. Are you sure you want to leave?';
         e.returnValue = message;
         return message;
       }
     };
 
-    window.addEventListener("beforeunload", handleBeforeUnload);
+    window.addEventListener('beforeunload', handleBeforeUnload);
     return () => {
-      window.removeEventListener("beforeunload", handleBeforeUnload);
+      window.removeEventListener('beforeunload', handleBeforeUnload);
     };
   }, [saveStatus]);
 
@@ -278,11 +277,11 @@ export function DocumentEditor({
               onClick={() => setAutoSaveEnabled(!autoSaveEnabled)}
               className={`text-xs px-2 py-1 rounded-md ${
                 autoSaveEnabled
-                  ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/50 dark:text-emerald-300"
-                  : "bg-secondary text-muted-foreground"
+                  ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/50 dark:text-emerald-300'
+                  : 'bg-secondary text-muted-foreground'
               }`}
             >
-              {autoSaveEnabled ? "Autosave On" : "Autosave Off"}
+              {autoSaveEnabled ? 'Autosave On' : 'Autosave Off'}
             </button>
           </div>
 
@@ -296,7 +295,7 @@ export function DocumentEditor({
           )}
 
           <div className="flex items-center gap-2">
-            {saveStatus === "unsaved" && (
+            {saveStatus === 'unsaved' && (
               <input
                 type="text"
                 placeholder="Version description (optional)"
@@ -315,7 +314,7 @@ export function DocumentEditor({
                 disabled
                 className="border-border bg-card text-muted-foreground"
                 onClick={() => {
-                  toast("Save your document first before sharing");
+                  toast('Save your document first before sharing');
                 }}
               >
                 <Share className="mr-2 h-4 w-4" />
@@ -327,7 +326,7 @@ export function DocumentEditor({
               onClick={() => handleSave()}
               size="sm"
               className="bg-primary hover:bg-primary/90 text-primary-foreground"
-              disabled={isPending || saveStatus === "saving"}
+              disabled={isPending || saveStatus === 'saving'}
             >
               <Save className="mr-2 h-4 w-4" />
               Save

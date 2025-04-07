@@ -10,11 +10,10 @@ export default async function DocumentDetailPage({
 }: { params: { documentId: string } }) {
   noStore();
 
-  const docId = (await params).documentId;
 
   return (
     <Suspense fallback={<div>Loading...</div>}>
-      <DocumentDetailClient documentId={docId} />
+      <DocumentDetailClient />
     </Suspense>
   );
 }

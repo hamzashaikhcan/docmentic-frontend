@@ -50,7 +50,7 @@ export default function DocumentsPage() {
           <div>
             <Button
               className="bg-primary hover:bg-primary/90"
-              onClick={() => router.push("/documents/new")}
+              onClick={() => router.push('/documents/new')}
             >
               <FilePlus className="mr-2 h-4 w-4" />
               New Document
@@ -72,7 +72,7 @@ export default function DocumentsPage() {
               Create your first document to get started.
             </p>
             <Button
-              onClick={() => router.push("/documents/new")}
+              onClick={() => router.push('/documents/new')}
               className="mt-4 bg-primary hover:bg-primary/90"
             >
               <FilePlus className="mr-2 h-4 w-4" />
@@ -110,8 +110,8 @@ export default function DocumentsPage() {
                     <div className="flex items-center text-sm text-muted-foreground">
                       <Clock className="mr-2 h-4 w-4" />
                       <span>
-                        Updated{" "}
-                        {formatDistance(new Date(doc.updated_at), new Date(), {
+                        Updated{' '}
+                        {formatDistance(new Date(doc.created_at), new Date(), {
                           addSuffix: true,
                         })}
                       </span>
@@ -119,9 +119,13 @@ export default function DocumentsPage() {
                     {doc.is_public !== undefined && (
                       <div className="flex items-center text-sm">
                         <span
-                          className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${doc.is_public ? "bg-green-100 text-green-800" : "bg-blue-100 text-blue-800"}`}
+                          className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
+                            doc.is_public
+                              ? 'bg-green-100 text-green-800'
+                              : 'bg-blue-100 text-blue-800'
+                          }`}
                         >
-                          {doc.is_public ? "Public" : "Private"}
+                          {doc.is_public ? 'Public' : 'Private'}
                         </span>
                       </div>
                     )}

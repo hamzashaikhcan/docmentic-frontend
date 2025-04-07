@@ -15,22 +15,23 @@ import {
   DropResult,
 } from "@hello-pangea/dnd";
 import { MAX_SECTIONS, OFFENSIVE_WORDS } from "@/lib/constants";
+import axiosClient from '@/lib/axiosClient';
 
 const DEFAULT_SECTIONS = [
-  "Executive Summary",
-  "Introduction",
-  "Main Content",
-  "Conclusion",
+  'Executive Summary',
+  'Introduction',
+  'Main Content',
+  'Conclusion',
 ];
 
 // Utility Functions
 const cleanSectionName = (name: string): string =>
-  name.replace(/[.,:;!?]+$/, "").trim();
+  name.replace(/[.,:;!?]+$/, '').trim();
 
 const containsOffensiveWords = (text: string): boolean => {
   if (!text) return false;
 
-  const cleanedText = text.toLowerCase().replace(/[^a-z0-9\s]/g, "");
+  const cleanedText = text.toLowerCase().replace(/[^a-z0-9\s]/g, '');
 
   return OFFENSIVE_WORDS.some(
     (word) =>
@@ -49,25 +50,25 @@ export const DocumentGenerationModal: React.FC<{
   const sectionInputRef = useRef<HTMLInputElement>(null);
   // State Management
   const [formState, setFormState] = useState({
-    title: "",
-    description: initialPrompt || "",
-    businessSummary: "",
-    companyName: "",
+    title: '',
+    description: initialPrompt || '',
+    businessSummary: '',
+    companyName: '',
     isPublic: false,
   });
 
   const [sections, setSections] = useState<string[]>(DEFAULT_SECTIONS);
-  const [newSection, setNewSection] = useState("");
-  const [sectionError, setSectionError] = useState("");
+  const [newSection, setNewSection] = useState('');
+  const [sectionError, setSectionError] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
 
   // Effect for Company Name and Initial Setup
   useEffect(() => {
-    const userData = JSON.parse(String(localStorage.getItem("session")));
+    const userData = JSON.parse(String(localStorage.getItem('session')));
     setFormState((prev) => ({
       ...prev,
       description: initialPrompt,
-      companyName: userData?.user?.company || "",
+      companyName: userData?.user?.company || '',
     }));
   }, [initialPrompt]);
 
@@ -77,7 +78,7 @@ export const DocumentGenerationModal: React.FC<{
       const { id, value } = e.target;
       setFormState((prev) => ({
         ...prev,
-        [id.replace("document-", "")]: value,
+        [id.replace('document-', '')]: value,
       }));
     },
     [],
@@ -86,19 +87,19 @@ export const DocumentGenerationModal: React.FC<{
   // Section Management
   const addSection = useCallback(() => {
     // Reset error
-    setSectionError("");
+    setSectionError('');
 
     // Clean section name
     const trimmedSection = cleanSectionName(newSection);
 
     // Validation checks
     if (!trimmedSection) {
-      setSectionError("Section name cannot be empty");
+      setSectionError('Section name cannot be empty');
       return;
     }
 
     if (containsOffensiveWords(trimmedSection)) {
-      setSectionError("Section name contains inappropriate language");
+      setSectionError('Section name contains inappropriate language');
       return;
     }
 
@@ -107,18 +108,18 @@ export const DocumentGenerationModal: React.FC<{
         (section) => section.toLowerCase() === trimmedSection.toLowerCase(),
       )
     ) {
-      setSectionError("This section already exists");
+      setSectionError('This section already exists');
       return;
     }
 
     if (sections.length >= MAX_SECTIONS) {
-      setSectionError("Maximum sections reached");
+      setSectionError('Maximum sections reached');
       return;
     }
 
     // Add section
     setSections((prev) => [...prev, trimmedSection]);
-    setNewSection("");
+    setNewSection('');
   }, [newSection, sections]);
 
   const removeSection = useCallback((sectionToRemove: string) => {
@@ -176,32 +177,52 @@ export const DocumentGenerationModal: React.FC<{
     setIsGenerating(true);
 
     try {
-      const response = await fetch("/api/documents", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          title,
-          description,
-          sections,
-          business_summary: businessSummary,
-          config: {
-            target_words: 1000,
-            max_workers: 4,
-            company_name: companyName,
-          },
-          is_public: isPublic,
-        }),
-      });
+      //   const response = await fetch("/api/documents", {
+      //     method: "POST",
+      //     headers: { "Content-Type": "application/json" },
+      //     body: JSON.stringify({
+      //       title,
+      //       description,
+      //       sections,
+      //       business_summary: businessSummary,
+      //       config: {
+      //         target_words: 1000,
+      //         max_workers: 4,
+      //         company_name: companyName,
+      //       },
+      //       is_public: isPublic,
+      //     }),
+      //   });
 
-      if (response.ok) {
-        const data = await response.json();
-        router.push(`/documents/${data.id}`);
+      const body = {
+        title,
+        description,
+        sections,
+        business_summary: businessSummary,
+        config: {
+          target_words: 1000,
+          max_workers: 4,
+          company_name: companyName,
+        },
+        is_public: isPublic,
+      };
+      const response = await axiosClient.post('/api/documents', body);
+      if (response) {
+        router.push(`/documents/${response?.data.id}`);
       } else {
-        console.error("Failed to generate document");
+        console.error('Failed to generate document');
         setIsGenerating(false);
       }
+
+      //   if (response.ok) {
+      //     const data = await response.json();
+      //     router.push(`/documents/${data.id}`);
+      //   } else {
+      //     console.error('Failed to generate document');
+      //     setIsGenerating(false);
+      //   }
     } catch (error) {
-      console.error("Error generating document:", error);
+      console.error('Error generating document:', error);
       setIsGenerating(false);
     }
   }, [formState, sections, router]);
@@ -218,19 +239,19 @@ export const DocumentGenerationModal: React.FC<{
     };
 
     const handleEsc = (event: KeyboardEvent) => {
-      if (event.key === "Escape") {
+      if (event.key === 'Escape') {
         onClose();
       }
     };
 
     if (isOpen) {
-      document.addEventListener("mousedown", handleClickOutside);
-      document.addEventListener("keydown", handleEsc);
+      document.addEventListener('mousedown', handleClickOutside);
+      document.addEventListener('keydown', handleEsc);
     }
 
     return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-      document.removeEventListener("keydown", handleEsc);
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('keydown', handleEsc);
     };
   }, [isOpen, onClose]);
 
@@ -338,18 +359,20 @@ export const DocumentGenerationModal: React.FC<{
                   value={newSection}
                   onChange={(e) => {
                     setNewSection(e.target.value);
-                    setSectionError("");
+                    setSectionError('');
                   }}
                   onKeyDown={(e) => {
-                    if (e.key === "Enter") {
+                    if (e.key === 'Enter') {
                       e.preventDefault();
                       addSection();
                     }
                   }}
                   placeholder={
                     sections.length >= MAX_SECTIONS
-                      ? "Maximum sections reached"
-                      : `Add a new section (${MAX_SECTIONS - sections.length} remaining)`
+                      ? 'Maximum sections reached'
+                      : `Add a new section (${
+                          MAX_SECTIONS - sections.length
+                        } remaining)`
                   }
                   disabled={sections.length >= MAX_SECTIONS}
                   className="flex-1 bg-secondary/30 border-border/50 focus:ring-2 focus:ring-primary/30"
@@ -400,7 +423,7 @@ export const DocumentGenerationModal: React.FC<{
                                   text-sm border border-border/30 
                                   cursor-pointer hover:bg-secondary/30 
                                   transition-colors duration-200 group
-                                  ${snapshot.isDragging ? "shadow-lg" : ""}`}
+                                  ${snapshot.isDragging ? 'shadow-lg' : ''}`}
                               >
                                 <div
                                   {...provided.dragHandleProps}
