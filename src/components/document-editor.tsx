@@ -43,7 +43,7 @@ export function DocumentEditor({
   const [saveStatus, setSaveStatus] = useState<'saved' | 'saving' | 'unsaved'>(
     'saved',
   );
-  const [autoSaveEnabled, setAutoSaveEnabled] = useState(true);
+  const [autoSaveEnabled, setAutoSaveEnabled] = useState(false);
   const contentRef = useRef(initialContent);
   const titleRef = useRef(initialTitle);
   const autoSaveTimerRef = useRef<NodeJS.Timeout | null>(null);
