@@ -100,7 +100,11 @@ export default function DocumentsPage() {
                     </div>
                     <CardDescription className="mt-2">
                       {doc.description ? (
-                        <span>{doc.description}</span>
+                        <span>
+                          {doc.description.length > 300
+                            ? `${doc.description.substring(0, 300)}...`
+                            : doc.description}
+                        </span>
                       ) : (
                         <span className="italic">No description</span>
                       )}

@@ -170,7 +170,9 @@ export default function DocumentDetailPage() {
             <div>
               <h1 className="text-3xl font-bold">{document.title}</h1>
               <p className="text-muted-foreground mt-1">
-                {document.description}
+                {document.description.length > 300
+                  ? `${document.description.substring(0, 300)}...`
+                  : document.description}
               </p>
             </div>
             <div className="flex space-x-2">
