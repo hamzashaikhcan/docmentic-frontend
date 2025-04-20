@@ -1,20 +1,8 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Button } from '@/components/ui/button';
 import {
   FileText,
-  MessageSquare,
-  Upload,
-  Check,
   Brain,
   Zap,
   Shield,
@@ -22,16 +10,13 @@ import {
   Clock,
   Users,
   ArrowRight,
-} from "lucide-react";
-import { useState, useEffect, useRef } from "react";
-import { MouseEvent as ReactMouseEvent } from "react";
+} from 'lucide-react';
+import { useState, useEffect, useRef } from 'react';
 import { Navbar } from "@/components/navbar";
 import Image from "next/image";
 import styles from "./styles/home.module.css";
-import SmoothScroll from "@/components/smooth-scroll";
-import { Footer } from "@/components/footer";
-import { AutoResizeTextarea } from "@/components/auto-resize-textarea";
-import Link from "next/link";
+import SmoothScroll from '@/components/smooth-scroll';
+import { AutoResizeTextarea } from '@/components/auto-resize-textarea';
 import { DocumentGenerationModal } from "@/components/document-generation-modal";
 import PricingSection from "@/components/pricing-section";
 import { ScrollToTop } from "@/components/scroll-to-top";

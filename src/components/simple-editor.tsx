@@ -31,12 +31,16 @@ export function SimpleEditor({
   );
 
   return (
-    <div className={`${className}`}>
-      <TiptapEditor
-        content={content}
-        onChange={handleChange}
-        className="min-h-[calc(100vh-12rem)]"
-      />
+    <div className={`flex flex-col h-full ${className}`}>
+      {/* This wrapper div ensures the editor takes up the full available height */}
+      <div className="flex flex-col h-full overflow-auto">
+        <TiptapEditor
+          content={content}
+          onChange={handleChange}
+          className="flex-1 overflow-auto"
+          toolbarClassName="sticky top-0 z-10 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b border-border"
+        />
+      </div>
     </div>
   );
 }

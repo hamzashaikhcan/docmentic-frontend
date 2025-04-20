@@ -72,6 +72,7 @@ export default function DocumentDetailPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+
   useEffect(() => {
     const fetchDocument = async () => {
       if (!documentId) return;
@@ -334,6 +335,7 @@ export default function DocumentDetailPage() {
                             version={version}
                             isActive={activeVersion?.id === version.id}
                             onSelect={setActiveVersion}
+                            onViewContent={() => setActiveTab('content')}
                           />
                         ))}
                     </div>
@@ -359,27 +361,61 @@ export default function DocumentDetailPage() {
                 <CardContent>
                   {activeVersion?.sections &&
                   activeVersion.sections.length > 0 ? (
-                    <Accordion>
+                    <div className="space-y-6">
                       {activeVersion.sections
                         .sort((a: any, b: any) => a.order - b.order)
                         .map((section: any) => (
-                          <DocumentSection key={section.id} section={section} />
+                          <div
+                            key={section.id}
+                            className="border-b border-border pb-6 last:border-b-0"
+                          >
+                            <h3 className="text-xl font-semibold mb-4">
+                              {section.title}
+                            </h3>
+
+                            {section.content_chunks &&
+                            section.content_chunks.length > 0 ? (
+                              <div className="prose dark:prose-invert max-w-none">
+                                {section.content_chunks.map((chunk: any) => (
+                                  <div key={chunk.id} className="mb-4">
+                                    {chunk.content && (
+                                      <div
+                                        dangerouslySetInnerHTML={{
+                                          __html: chunk.content,
+                                        }}
+                                      />
+                                    )}
+                                  </div>
+                                ))}
+                              </div>
+                            ) : (
+                              <p className="text-muted-foreground italic">
+                                No content available for this section
+                              </p>
+                            )}
+
+                            {section.diagram && (
+                              <div className="mt-6 border rounded-lg overflow-hidden">
+                                <img
+                                  src={section.diagram.image_path}
+                                  alt={`Diagram for ${section.title}`}
+                                  className="w-full max-h-[400px] object-contain"
+                                />
+                              </div>
+                            )}
+                          </div>
                         ))}
-                    </Accordion>
+                    </div>
                   ) : (
                     <div className="p-4 text-center text-muted-foreground">
-                      No content sections available
+                      <FileText className="mx-auto h-12 w-12 mb-4 text-muted-foreground" />
+                      <p>No content sections available</p>
                     </div>
                   )}
                 </CardContent>
-                {activeVersion?.output_file && (
-                  <CardFooter className="bg-muted/50">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      asChild
-                      className="ml-auto"
-                    >
+                {/* {activeVersion?.output_file && (
+                  <CardFooter className="bg-muted/50 flex justify-end">
+                    <Button variant="outline" size="sm" asChild>
                       <a
                         href={activeVersion.output_file}
                         target="_blank"
@@ -390,7 +426,7 @@ export default function DocumentDetailPage() {
                       </a>
                     </Button>
                   </CardFooter>
-                )}
+                )} */}
               </Card>
             )}
 

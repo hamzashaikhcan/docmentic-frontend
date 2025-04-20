@@ -17,12 +17,7 @@ import {
 import { MAX_SECTIONS, OFFENSIVE_WORDS } from "@/lib/constants";
 import axiosClient from '@/lib/axiosClient';
 
-const DEFAULT_SECTIONS = [
-  'Executive Summary',
-  'Introduction',
-  'Main Content',
-  'Conclusion',
-];
+const DEFAULT_SECTIONS = ['Executive Summary', 'Introduction', 'Conclusion'];
 
 // Utility Functions
 const cleanSectionName = (name: string): string =>

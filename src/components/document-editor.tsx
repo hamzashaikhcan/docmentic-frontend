@@ -26,6 +26,70 @@ interface DocumentEditorProps {
   categoryId?: string | null;
 }
 
+interface DocumentTitleProps {
+  title: string;
+  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  placeholder?: string;
+  minWidth?: number;
+  maxWidth?: number;
+}
+
+function DocumentTitle({
+  title,
+  onChange,
+  placeholder = 'Untitled Document',
+  minWidth = 120,
+  maxWidth = 400,
+}: DocumentTitleProps) {
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  // Auto-resize function for the input
+  const autoResizeInput = () => {
+    const input = inputRef.current;
+    if (!input) return;
+
+    // Reset width to calculate content width properly
+    input.style.width = '0px';
+
+    // Calculate width based on content
+    const padding = 24; // Account for padding
+    const contentWidth = input.scrollWidth + padding;
+
+    // Apply min and max constraints
+    const width = Math.min(Math.max(contentWidth, minWidth), maxWidth);
+
+    // Set the width with constraints applied
+    input.style.width = `${width}px`;
+  };
+
+  // Resize on mount and whenever title changes
+  useEffect(() => {
+    autoResizeInput();
+  }, [title]);
+
+  return (
+    <input
+      ref={inputRef}
+      type="text"
+      placeholder={placeholder}
+      value={title}
+      onChange={(e) => {
+        onChange(e);
+        // Resize on next tick to ensure value is updated
+        setTimeout(autoResizeInput, 0);
+      }}
+      className="text-lg font-medium border-0 bg-transparent text-foreground focus-visible:ring-0 focus-visible:ring-offset-0 px-3"
+      style={{
+        minWidth: `${minWidth}px`,
+        maxWidth: `${maxWidth}px`,
+        width: 'auto',
+        transition: 'width 0.1s ease',
+        textOverflow: 'ellipsis', // Show ellipsis when text exceeds max width
+      }}
+    />
+  );
+}
+
 export function DocumentEditor({
   documentId,
   initialTitle = 'Untitled Document',
@@ -55,6 +119,12 @@ export function DocumentEditor({
     setTitle(initialTitle);
     titleRef.current = initialTitle;
   }, [initialTitle]);
+
+  // Update content when initialContent changes
+  useEffect(() => {
+    setContent(initialContent);
+    contentRef.current = initialContent;
+  }, [initialContent]);
 
   // Fetch document versions when documentId changes
   useEffect(() => {
@@ -91,7 +161,14 @@ export function DocumentEditor({
         clearTimeout(autoSaveTimerRef.current);
       }
     };
-  }, [content, title, autoSaveEnabled, saveStatus]);
+  }, [
+    content,
+    title,
+    autoSaveEnabled,
+    saveStatus,
+    initialContent,
+    initialTitle,
+  ]);
 
   const handleContentChange = useCallback(
     (newContent: string) => {
@@ -258,17 +335,16 @@ export function DocumentEditor({
 
   return (
     <div
-      className={`flex flex-col h-full ${className} bg-background text-foreground`}
+      className={`flex flex-col ${className}`}
+      style={{
+        height: '100%',
+        overflow: 'hidden',
+      }}
     >
-      <div className="border-b border-border px-4 py-3 flex justify-between items-center bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-10">
+      {/* Fixed header */}
+      <div className="border-b border-border px-4 py-3 flex justify-between items-center bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 z-10 flex-shrink-0">
         <div className="flex-1">
-          <input
-            type="text"
-            placeholder="Untitled Document"
-            value={title}
-            onChange={handleTitleChange}
-            className="text-lg font-medium border-0 bg-transparent text-foreground focus-visible:ring-0 focus-visible:ring-offset-0 px-2 max-w-md"
-          />
+          <DocumentTitle title={title} onChange={handleTitleChange} />
           <div className="px-2 mt-1">{getSaveStatusIndicator()}</div>
         </div>
         <div className="flex items-center gap-2">
@@ -334,12 +410,14 @@ export function DocumentEditor({
           </div>
         </div>
       </div>
+
+      {/* Scrollable editor area */}
       <div className="flex-1 overflow-auto p-4 bg-background">
-        <div className="max-w-5xl mx-auto">
+        <div className="max-w-5xl mx-auto h-full">
           <SimpleEditor
             initialContent={initialContent}
             onUpdate={handleContentChange}
-            className="min-h-[calc(100vh-12rem)] prose dark:prose-invert"
+            className="h-full"
           />
         </div>
       </div>

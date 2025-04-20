@@ -47,6 +47,7 @@ type TiptapEditorProps = {
   content: string;
   onChange: (value: string) => void;
   className?: string;
+  toolbarClassName?: string;
   readOnly?: boolean;
 };
 
@@ -54,16 +55,17 @@ export function TiptapEditor({
   content,
   onChange,
   className,
+  toolbarClassName = '',
   readOnly = false,
 }: TiptapEditorProps) {
-  const [url, setUrl] = useState<string>("");
+  const [url, setUrl] = useState<string>('');
   const [showLinkMenu, setShowLinkMenu] = useState<boolean>(false);
-  const [imageUrl, setImageUrl] = useState<string>("");
+  const [imageUrl, setImageUrl] = useState<string>('');
   const [showImageMenu, setShowImageMenu] = useState<boolean>(false);
   const [uploadOpen, setUploadOpen] = useState<boolean>(false);
   const [isDragging, setIsDragging] = useState<boolean>(false);
   const [uploadedImage, setUploadedImage] = useState<string | null>(null);
-  const [uploadedImageName, setUploadedImageName] = useState<string>("");
+  const [uploadedImageName, setUploadedImageName] = useState<string>('');
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const editor = useEditor({
@@ -74,25 +76,25 @@ export function TiptapEditor({
         },
       }),
       Placeholder.configure({
-        placeholder: "Start writing your document here...",
+        placeholder: 'Start writing your document here...',
       }),
       Link.configure({
         openOnClick: false,
         HTMLAttributes: {
-          class: "text-primary underline",
+          class: 'text-primary underline',
         },
       }),
       Image.configure({
         inline: true,
         allowBase64: true,
         HTMLAttributes: {
-          class: "max-w-full rounded-lg shadow-sm mx-auto my-4",
+          class: 'max-w-full rounded-lg shadow-sm mx-auto my-4',
         },
       }),
       TextStyle,
       Underline,
     ],
-    content: content || "",
+    content: content || '',
     onUpdate: ({ editor }) => {
       onChange(JSON.stringify(editor.getJSON()));
     },
@@ -141,14 +143,14 @@ export function TiptapEditor({
       if (files.length === 0) return;
 
       Array.from(files).forEach((file) => {
-        if (!file.type.startsWith("image/")) {
+        if (!file.type.startsWith('image/')) {
           toast.error(`File ${file.name} is not an image`);
           return;
         }
 
         const reader = new FileReader();
         reader.onload = (event) => {
-          if (typeof event.target?.result === "string") {
+          if (typeof event.target?.result === 'string') {
             const imageUrl = event.target.result;
             editor
               .chain()
@@ -169,14 +171,14 @@ export function TiptapEditor({
       if (!e.target.files || e.target.files.length === 0) return;
 
       const file = e.target.files[0];
-      if (!file.type.startsWith("image/")) {
+      if (!file.type.startsWith('image/')) {
         toast.error(`File ${file.name} is not an image`);
         return;
       }
 
       const reader = new FileReader();
       reader.onload = (event) => {
-        if (typeof event.target?.result === "string") {
+        if (typeof event.target?.result === 'string') {
           setUploadedImage(event.target.result);
           setUploadedImageName(file.name);
         }
@@ -195,9 +197,9 @@ export function TiptapEditor({
         .run();
 
       setUploadedImage(null);
-      setUploadedImageName("");
+      setUploadedImageName('');
       setUploadOpen(false);
-      toast.success("Image added successfully");
+      toast.success('Image added successfully');
     }
   }, [editor, uploadedImage, uploadedImageName]);
 
@@ -206,11 +208,11 @@ export function TiptapEditor({
       editor
         .chain()
         .focus()
-        .extendMarkRange("link")
+        .extendMarkRange('link')
         .setLink({ href: url })
         .run();
 
-      setUrl("");
+      setUrl('');
       setShowLinkMenu(false);
     }
   }, [editor, url]);
@@ -219,7 +221,7 @@ export function TiptapEditor({
     if (editor && imageUrl) {
       editor.chain().focus().setImage({ src: imageUrl }).run();
 
-      setImageUrl("");
+      setImageUrl('');
       setShowImageMenu(false);
     }
   }, [editor, imageUrl]);
@@ -231,9 +233,9 @@ export function TiptapEditor({
   return (
     <div
       className={cn(
-        "border border-border rounded-md overflow-hidden",
-        isDragging && "border-primary border-2 bg-primary/5",
-        readOnly && "border-muted bg-muted/5",
+        'border border-border rounded-md overflow-hidden',
+        isDragging && 'border-primary border-2 bg-primary/5',
+        readOnly && 'border-muted bg-muted/5',
         className,
       )}
       onDragEnter={!readOnly ? handleDragEnter : undefined}
@@ -242,14 +244,16 @@ export function TiptapEditor({
       onDrop={!readOnly ? handleDrop : undefined}
     >
       {!readOnly && (
-        <div className="flex flex-wrap items-center gap-1 p-2 border-b border-border bg-muted/40">
+        <div
+          className={`flex flex-wrap items-center gap-1 p-2 border-b border-border bg-muted/40 ${toolbarClassName}`}
+        >
           <Button
             size="icon"
             variant="ghost"
             onClick={() => editor.chain().focus().toggleBold().run()}
             className={cn(
-              "h-8 w-8",
-              editor.isActive("bold") ? "bg-accent text-accent-foreground" : "",
+              'h-8 w-8',
+              editor.isActive('bold') ? 'bg-accent text-accent-foreground' : '',
             )}
             title="Bold (Ctrl+B)"
           >
@@ -261,10 +265,10 @@ export function TiptapEditor({
             variant="ghost"
             onClick={() => editor.chain().focus().toggleItalic().run()}
             className={cn(
-              "h-8 w-8",
-              editor.isActive("italic")
-                ? "bg-accent text-accent-foreground"
-                : "",
+              'h-8 w-8',
+              editor.isActive('italic')
+                ? 'bg-accent text-accent-foreground'
+                : '',
             )}
             title="Italic (Ctrl+I)"
           >
@@ -275,10 +279,10 @@ export function TiptapEditor({
             variant="ghost"
             onClick={() => editor.chain().focus().toggleUnderline().run()}
             className={cn(
-              "h-8 w-8",
-              editor.isActive("underline")
-                ? "bg-accent text-accent-foreground"
-                : "",
+              'h-8 w-8',
+              editor.isActive('underline')
+                ? 'bg-accent text-accent-foreground'
+                : '',
             )}
             title="Underline (Ctrl+U)"
           >
@@ -291,10 +295,10 @@ export function TiptapEditor({
               editor.chain().focus().toggleHeading({ level: 1 }).run()
             }
             className={cn(
-              "h-8 w-8",
-              editor.isActive("heading", { level: 1 })
-                ? "bg-accent text-accent-foreground"
-                : "",
+              'h-8 w-8',
+              editor.isActive('heading', { level: 1 })
+                ? 'bg-accent text-accent-foreground'
+                : '',
             )}
             title="Heading 1"
           >
@@ -307,10 +311,10 @@ export function TiptapEditor({
               editor.chain().focus().toggleHeading({ level: 2 }).run()
             }
             className={cn(
-              "h-8 w-8",
-              editor.isActive("heading", { level: 2 })
-                ? "bg-accent text-accent-foreground"
-                : "",
+              'h-8 w-8',
+              editor.isActive('heading', { level: 2 })
+                ? 'bg-accent text-accent-foreground'
+                : '',
             )}
             title="Heading 2"
           >
@@ -321,10 +325,10 @@ export function TiptapEditor({
             variant="ghost"
             onClick={() => editor.chain().focus().toggleBulletList().run()}
             className={cn(
-              "h-8 w-8",
-              editor.isActive("bulletList")
-                ? "bg-accent text-accent-foreground"
-                : "",
+              'h-8 w-8',
+              editor.isActive('bulletList')
+                ? 'bg-accent text-accent-foreground'
+                : '',
             )}
             title="Bullet List"
           >
@@ -335,10 +339,10 @@ export function TiptapEditor({
             variant="ghost"
             onClick={() => editor.chain().focus().toggleOrderedList().run()}
             className={cn(
-              "h-8 w-8",
-              editor.isActive("orderedList")
-                ? "bg-accent text-accent-foreground"
-                : "",
+              'h-8 w-8',
+              editor.isActive('orderedList')
+                ? 'bg-accent text-accent-foreground'
+                : '',
             )}
             title="Ordered List"
           >
@@ -349,10 +353,10 @@ export function TiptapEditor({
             variant="ghost"
             onClick={() => editor.chain().focus().toggleCodeBlock().run()}
             className={cn(
-              "h-8 w-8",
-              editor.isActive("codeBlock")
-                ? "bg-accent text-accent-foreground"
-                : "",
+              'h-8 w-8',
+              editor.isActive('codeBlock')
+                ? 'bg-accent text-accent-foreground'
+                : '',
             )}
             title="Code Block"
           >
@@ -363,10 +367,10 @@ export function TiptapEditor({
             variant="ghost"
             onClick={() => editor.chain().focus().toggleBlockquote().run()}
             className={cn(
-              "h-8 w-8",
-              editor.isActive("blockquote")
-                ? "bg-accent text-accent-foreground"
-                : "",
+              'h-8 w-8',
+              editor.isActive('blockquote')
+                ? 'bg-accent text-accent-foreground'
+                : '',
             )}
             title="Quote"
           >
@@ -382,7 +386,7 @@ export function TiptapEditor({
                   value={url}
                   onChange={(e) => setUrl(e.target.value)}
                   onKeyDown={(e) => {
-                    if (e.key === "Enter") {
+                    if (e.key === 'Enter') {
                       handleInsertLink();
                     }
                   }}
@@ -404,10 +408,10 @@ export function TiptapEditor({
                 variant="ghost"
                 onClick={() => setShowLinkMenu(true)}
                 className={cn(
-                  "h-8 w-8",
-                  editor.isActive("link")
-                    ? "bg-accent text-accent-foreground"
-                    : "",
+                  'h-8 w-8',
+                  editor.isActive('link')
+                    ? 'bg-accent text-accent-foreground'
+                    : '',
                 )}
                 title="Insert Link"
               >
@@ -425,7 +429,7 @@ export function TiptapEditor({
                   value={imageUrl}
                   onChange={(e) => setImageUrl(e.target.value)}
                   onKeyDown={(e) => {
-                    if (e.key === "Enter") {
+                    if (e.key === 'Enter') {
                       handleInsertImage();
                     }
                   }}
@@ -494,9 +498,9 @@ export function TiptapEditor({
                               className="absolute top-2 right-2 h-6 w-6"
                               onClick={() => {
                                 setUploadedImage(null);
-                                setUploadedImageName("");
+                                setUploadedImageName('');
                                 if (fileInputRef.current) {
-                                  fileInputRef.current.value = "";
+                                  fileInputRef.current.value = '';
                                 }
                               }}
                             >
@@ -559,7 +563,7 @@ export function TiptapEditor({
             variant="ghost"
             onClick={() => editor.chain().focus().toggleBold().run()}
             className={
-              editor.isActive("bold") ? "bg-accent text-accent-foreground" : ""
+              editor.isActive('bold') ? 'bg-accent text-accent-foreground' : ''
             }
           >
             <Bold className="h-4 w-4" />
@@ -569,9 +573,9 @@ export function TiptapEditor({
             variant="ghost"
             onClick={() => editor.chain().focus().toggleItalic().run()}
             className={
-              editor.isActive("italic")
-                ? "bg-accent text-accent-foreground"
-                : ""
+              editor.isActive('italic')
+                ? 'bg-accent text-accent-foreground'
+                : ''
             }
           >
             <Italic className="h-4 w-4" />
@@ -581,7 +585,7 @@ export function TiptapEditor({
             variant="ghost"
             onClick={() => setShowLinkMenu(true)}
             className={
-              editor.isActive("link") ? "bg-accent text-accent-foreground" : ""
+              editor.isActive('link') ? 'bg-accent text-accent-foreground' : ''
             }
           >
             <LinkIcon className="h-4 w-4" />
@@ -589,7 +593,7 @@ export function TiptapEditor({
         </BubbleMenu>
       )}
 
-      <div className={cn("relative", isDragging && "bg-primary/5")}>
+      <div className={cn('relative', isDragging && 'bg-primary/5')}>
         {isDragging && !readOnly && (
           <div className="absolute inset-0 flex items-center justify-center z-10 pointer-events-none">
             <div className="bg-background/80 px-4 py-2 rounded-md shadow-md text-sm text-foreground">
@@ -600,8 +604,8 @@ export function TiptapEditor({
         <EditorContent
           editor={editor}
           className={cn(
-            "prose prose-sm sm:prose-base dark:prose-invert max-w-none focus:outline-none",
-            readOnly ? "p-0" : "p-4",
+            'prose prose-sm sm:prose-base dark:prose-invert max-w-none focus:outline-none',
+            readOnly ? 'p-0' : 'p-4',
           )}
         />
       </div>
